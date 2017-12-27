@@ -125,7 +125,7 @@ def getwords(rawtext):
     """Return a list of the words in a text string.
     """
     words = []
-    cruft = ',./():;!"' + "<>u'Ã¢{}" # characters to strip off ends of words
+    cruft = ',./():;!"' + "<>'Ã¢{}" # characters to strip off ends of words
     for raw_word in rawtext.split():
         # remove whitespace before/after the word
         word = raw_word.strip(string.whitespace + cruft + '-').lower()
