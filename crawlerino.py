@@ -1,3 +1,4 @@
+# coding=utf-8
 """Simple Python 3 web crawler, to be extended for various uses.
 
 Prerequisites:
@@ -8,8 +9,8 @@ import collections
 import string
 
 from timeit import default_timer
-from urllib.parse import urldefrag, urljoin, urlparse
-
+#from urllib.parse import urldefrag
+import urllib.parse
 import bs4
 import requests
 
@@ -25,7 +26,7 @@ def crawler(startpage, maxpages=100, singledomain=True):
     pagequeue = collections.deque() # queue of pages to be crawled
     pagequeue.append(startpage)
     crawled = [] # list of pages already crawled
-    domain = urlparse(startpage).netloc if singledomain else None
+    domain = urllib.parse.urlparse(startpage).netloc if singledomain else None
 
     pages = 0 # number of pages succesfully crawled so far
     failed = 0 # number of links that couldn't be crawled
@@ -104,18 +105,18 @@ def getlinks(pageurl, domain, soup):
     links = [a.attrs.get('href') for a in soup.select('a[href]')]
 
     # remove fragment identifiers
-    links = [urldefrag(link)[0] for link in links]
+    links = [urllib.parse.urldefrag(link)[0] for link in links]
 
     # remove any empty strings
     links = [link for link in links if link]
 
     # if it's a relative link, change to absolute
-    links = [link if bool(urlparse(link).netloc) else urljoin(pageurl, link) \
+    links = [link if bool(urllib.parse.urlparse(link).netloc) else urllib.parse.urljoin(pageurl, link) \
         for link in links]
 
     # if only crawing a single domain, remove links to other domains
     if domain:
-        links = [link for link in links if samedomain(urlparse(link).netloc, domain)]
+        links = [link for link in links if samedomain(urllib.parse.urlparse(link).netloc, domain)]
 
     return links
 
@@ -124,7 +125,7 @@ def getwords(rawtext):
     """Return a list of the words in a text string.
     """
     words = []
-    cruft = ',./():;!"' + "<>'â{}" # characters to strip off ends of words
+    cruft = ',./():;!"' + "<>u'Ã¢{}" # characters to strip off ends of words
     for raw_word in rawtext.split():
         # remove whitespace before/after the word
         word = raw_word.strip(string.whitespace + cruft + '-').lower()
@@ -216,6 +217,6 @@ def wordcount(soup):
 # if running standalone, crawl some Microsoft pages as a test
 if __name__ == "__main__":
     START = default_timer()
-    crawler('http://mahugh.com/2016/04/27/springtime-in-new-york/', maxpages=1, singledomain=True)
+    crawler('http://mahugh.com/2016/04/27/springtime-in-new-york/', maxpages=10, singledomain=True)
     END = default_timer()
     print('Elapsed time (seconds) = ' + str(END-START))
